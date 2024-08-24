@@ -3,25 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-    <link rel="stylesheet" href="/styles.css">
+    <title>Budget Tracker</title>
+    <link rel="stylesheet" href="../styles/reset.css">
+    <link rel="stylesheet" href="../styles/main.css">
+
+    <link rel="stylesheet" href="../styles/home.css">
+    <script src="../js/d3.v7.min.js"></script>
 </head>
 <body>
-    <h1>Welcome to the Home Page</h1>
-    <nav>
-        <a href="/">Home</a> |
-        <a href="/about">About Us</a> |
-        <a href="/contact">Contact</a>|
-        <a href="/assets">Assets</a>|
-        <a href="/assettypes">Asset Types</a>|
-        <a href="/liabilities">Liability</a>|
-        <a href="/liabilitytypes">Liability Types</a>
-    </nav>
-    <h2>Users List</h2>
-    <ul>
-        <% users.forEach(user => { %>
-            <li><%= user.name %> (<%= user.email %>)</li>
-        <% }) %>
-    </ul>
+    <header class="header-main">
+        <section class="header-box">
+            <h1 class="current-page">Portal</h1>
+            <p class="user-role-display">Logged In As: <span class="user-role">Admin</span></p>
+        </section>
+    </header>
+    <main>
+        <aside class="nav-sidebar">
+            <ul>
+                <li><button onclick="window.location.href = 'index.ejs';">Home</button></li>
+                <li><button onclick="window.location.href = 'about.ejs';">About Us</button></li>
+                <li><button onclick="window.location.href = 'contact.ejs';">Contact</button></li>
+                <li><button onclick="window.location.href = 'assets.ejs';">Assets</button></li>
+                <li><button onclick="window.location.href = 'assettypes.ejs';">Asset Types</button></li>
+                <li><button onclick="window.location.href = 'liabilities.ejs';">Liability</button></li>
+                <li><button onclick="window.location.href = 'liabilitytypes.ejs';">Liability Types</button></li>
+            </ul>
+        </aside>
+
+        <nav class="user-control-navbar">
+            <button>Logout</button>
+            <button>Setup</button>
+        </nav>
+
+        <section class="page-content">
+            <section class="table-display">
+                
+            </section>
+
+            <section class="graph-display"  id="graph-container"></section>
+            <script src="../js/graph.js"></script>
+            
+            <section class="future-component-space">
+                <h2>Users List</h2>
+                    <ul>
+                        <% users.forEach(user => { %>
+                            <li><%= user.name %> (<%= user.email %>)</li>
+                        <% }) %>
+                    </ul>
+            </section>
+        </section>
+    </main>
 </body>
 </html>

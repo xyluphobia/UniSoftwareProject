@@ -8,20 +8,20 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Create a connection to local database (Creat and use this for testing)
-/* const connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'Omnibits',
     database: 'betracker'
-}); */
+}); 
 
 // Create a connection to Azure Database (Do not use for testing yet)
-const connection = mysql.createConnection({
+/*const connection = mysql.createConnection({
 host:'obsserver.mysql.database.azure.com',
 user:'OBSAdmin',
 password:'OmnibitsS1',
 database:'betracker'
-}) 
+}) */
 
 
 // Connect to the database
