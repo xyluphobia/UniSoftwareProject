@@ -80,7 +80,7 @@ h1 {
 body {
     margin: 0;
     background-color: var(--tertiaryColour);
-    width: 100%;
+    width: 100vw;
 }
 body::after {  /* Used to preload images for transitions */
     position: absolute;
@@ -88,8 +88,6 @@ body::after {  /* Used to preload images for transitions */
     height: 0;
     overflow: hidden;
     z-index: -1;
-    /*content: 
-    url(../images/social-icons/facebook.png);*/
 }
 
 
@@ -103,6 +101,7 @@ body::after {  /* Used to preload images for transitions */
     align-items: center;
 
     height: 3vw;
+    max-width: calc(100vw - 24px);
     margin: 12px;
 }
 .header-box .current-page {
@@ -174,4 +173,5 @@ main {
 
     min-height: calc(100vh - 36px - 3vw - 66px);
     width: auto;
+    max-width: calc(100vw - 12vw - 36px);
 }

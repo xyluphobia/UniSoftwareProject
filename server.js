@@ -8,12 +8,19 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Create a connection to local database (Creat and use this for testing)
-const connection = mysql.createConnection({
+/*const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'Omnibits',
     database: 'betracker'
-}); 
+}); */
+
+const connection = mysql.createConnection({
+    host: 'localhost', // The host of your MySQL server
+    user: 'root', // Windows user who has access to MySQL
+    password: '', // If the user does not have a password, leave it empty
+    database: 'BudgetDB', // The name of the database you want to connect to
+  });
 
 // Create a connection to Azure Database (Do not use for testing yet)
 /*const connection = mysql.createConnection({

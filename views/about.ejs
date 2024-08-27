@@ -3,17 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Page</title>
-    <link rel="stylesheet" href="/styles.css">
+    <title>Budget Tracker</title>
+    <link rel="stylesheet" href="../styles/reset.css">
+    <link rel="stylesheet" href="../styles/main.css">
+
+    <link rel="stylesheet" href="../public/styles.css">
 </head>
 <body>
-    <h1>About Us</h1>
-    <p>This is the about page.</p>
-    <nav>
-        <a href="/">Home</a> |
-        <a href="/contact">Contact</a>|
-        <a href="/assets">Assets</a>|
-        <a href="/assettypes">Asset Types</a>
-    </nav>
+    <header class="header-main">
+        <section class="header-box">
+            <h1 class="current-page">About</h1>
+            <p class="user-role-display">Logged In As: <span class="user-role">Admin</span></p>
+        </section>
+    </header>
+    <main>
+        <aside class="nav-sidebar">
+            <ul>
+                <li><button onclick="window.location.href = 'index.ejs';">Home</button></li>
+                <li><button onclick="window.location.href = 'about.ejs';">About Us</button></li>
+                <li><button onclick="window.location.href = 'contact.ejs';">Contact</button></li>
+                <li><button onclick="window.location.href = 'assets.ejs';">Assets</button></li>
+                <li><button onclick="window.location.href = 'assettypes.ejs';">Asset Types</button></li>
+                <li><button onclick="window.location.href = 'liabilities.ejs';">Liability</button></li>
+                <li><button onclick="window.location.href = 'liabilitytypes.ejs';">Liability Types</button></li>
+            </ul>
+        </aside>
+
+        <nav class="user-control-navbar">
+            <button>Logout</button>
+            <button>Setup</button>
+        </nav>
+
+        <section class="page-content">
+            <p>This is the about page.</p>
+        </section>
+    </main>
 </body>
 </html>

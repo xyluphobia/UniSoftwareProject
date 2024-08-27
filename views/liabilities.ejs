@@ -3,191 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liabilities</title>
-    <link rel="stylesheet" href="/styles.css">
+    <title>Budget Tracker</title>
+    <link rel="stylesheet" href="../styles/reset.css">
+    <link rel="stylesheet" href="../styles/main.css">
 
-    <script>
-        function selectLiability(button) {
-            const LiabilityID = button.getAttribute("data-LiabilityID");
-            const Name = button.getAttribute("data-Name");
-            const Description = button.getAttribute("data-Description");
-            const LiabilityTypeID = button.getAttribute("data-LiabilityTypeID");
-            const LiabilityTypeName = button.getAttribute("data-LiabilityTypeName");
-            const InitialBalance = button.getAttribute("data-InitialBalance");
-            const CurrentBalance = button.getAttribute("data-CurrentBalance");
-            const StartDate = button.getAttribute("data-StartDate");
-            const EndDate = button.getAttribute("data-EndDate");
-            const TargetBalance = button.getAttribute("data-TargetBalance");
-            const TargetDate = button.getAttribute("data-TargetDate");
-            
-            document.getElementById('hiddenLiabilityID').value = LiabilityID; 
-            document.getElementById('hiddenLiabilityTypeID').value = LiabilityTypeID;
-            document.getElementById('editName').value = Name;
-            document.getElementById('editDescription').value = Description; 
-            document.getElementById('editLiabilityType').value = LiabilityTypeID;
-            document.getElementById('editInitialBalance').value = InitialBalance;
-            document.getElementById('editCurrentBalance').value = CurrentBalance; 
-            document.getElementById('editStartDate').value = StartDate;
-            document.getElementById('editEndDate').value = EndDate;
-            document.getElementById('editTargetBalance').value = TargetBalance; 
-            document.getElementById('editTargetDate').value = TargetDate;
-            
-        }
-
-        function saveChanges() {
-            const selectedForm = document.getElementById("editForm");
-
-            const fd = new FormData(selectedForm);
-            const urlEncoded = new URLSearchParams(fd).toString();
-
-            fetch('/liabilities/update', { 
-                method: "POST", 
-                body: urlEncoded, 
-                headers: { 
-                    'content-type': 'application/x-www-form-urlencoded' ,
-                }
-            }).then(() => {
-                    window.location.reload();
-                });
-        }
-
-        function DeleteData() {
-            const selectedForm = document.getElementById("editForm");
-
-            const fd = new FormData(selectedForm);
-            const urlEncoded = new URLSearchParams(fd).toString();
-
-            fetch('/liabilities/delete', { 
-                method: "POST", 
-                body: urlEncoded, 
-                headers: { 
-                    'content-type': 'application/x-www-form-urlencoded' ,
-                }
-            }).then(() => {
-                    window.location.reload();
-                });
-        }
-
-        function resetFields(){
-            document.getElementById('hiddenLiabilityID').value = ""; 
-            document.getElementById('hiddenLiabilityTypeID').value = "";
-            document.getElementById('editName').value = "";
-            document.getElementById('editDescription').value = ""; 
-            document.getElementById('editLiabilityType').value = "";
-            document.getElementById('editInitialBalance').value = "";
-            document.getElementById('editCurrentBalance').value = ""; 
-            document.getElementById('editStartDate').value = "";
-            document.getElementById('editEndDate').value = "";
-            document.getElementById('editTargetBalance').value = ""; 
-            document.getElementById('editTargetDate').value = "";
-            }
-    </script>
-
+    <link rel="stylesheet" href="../public/styles.css">
 </head>
 <body>
-    <h1>Liabilities</h1>
+    <header class="header-main">
+        <section class="header-box">
+            <h1 class="current-page">Liabilities</h1>
+            <p class="user-role-display">Logged In As: <span class="user-role">Admin</span></p>
+        </section>
+    </header>
+    <main>
+        <aside class="nav-sidebar">
+            <ul>
+                <li><button onclick="window.location.href = 'index.ejs';">Home</button></li>
+                <li><button onclick="window.location.href = 'about.ejs';">About Us</button></li>
+                <li><button onclick="window.location.href = 'contact.ejs';">Contact</button></li>
+                <li><button onclick="window.location.href = 'assets.ejs';">Assets</button></li>
+                <li><button onclick="window.location.href = 'assettypes.ejs';">Asset Types</button></li>
+                <li><button onclick="window.location.href = 'liabilities.ejs';">Liability</button></li>
+                <li><button onclick="window.location.href = 'liabilitytypes.ejs';">Liability Types</button></li>
+            </ul>
+        </aside>
 
-    <nav>
-        <a href="/">Home</a> |
-        <a href="/about">About Us</a> |
-        <a href="/contact">Contact</a>|
-        <a href="/liabilitytypes">Liability Types</a>
-    </nav>
+        <nav class="user-control-navbar">
+            <button>Logout</button>
+            <button>Setup</button>
+        </nav>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Select</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Liability Type</th>
-                <th>Initial Balance</th>
-                <th>Current Balance</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Target Balance</th>
-                <th>Target Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% liabilities.forEach(liability => { %>
-            <tr>
-                <td><button 
-                    type="button" 
-                    data-LiabilityID="<%= liability.LiabilityID %>" 
-                    data-Name="<%= liability.Name %>" 
-                    data-Description="<%= liability.Description %>" 
-                    data-LiabilityTypeID="<%= liability.LiabilityTypeID %>" 
-                    data-LiabilityTypeName="<%= liability.LiabilityTypeName %>" 
-                    data-InitialBalance="<%= liability.InitialBalance %>" 
-                    data-CurrentBalance="<%= liability.CurrentBalance %>" 
-                    data-StartDate="<%= liability.StartDate %>" 
-                    data-EndDate="<%= liability.EndDate %>" 
-                    data-TargetBalance="<%= liability.TargetBalance %>" 
-                    data-TargetDate="<%= liability.TargetDate %>" 
-                    class="select-btn" 
-                    onclick="selectLiability(this);">Select</button>
-                </td>
-                <td><%= liability.Name %></td>
-                <td><%= liability.Description %></td>
-                <td><%= liability.LiabilityTypeName %></td>
-                <td><%= liability.InitialBalance %></td>
-                <td><%= liability.CurrentBalance %></td>
-                <td><%= liability.StartDate %></td>
-                <td><%= liability.EndDate %></td>
-                <td><%= liability.TargetBalance %></td>
-                <td><%= liability.TargetDate %></td>
-            </tr>
-            <% }) %>
-        </tbody>
-    </table>
+        <section class="page-content">
+            <script>
+                function selectLiability(button) {
+                    const LiabilityID = button.getAttribute("data-LiabilityID");
+                    const Name = button.getAttribute("data-Name");
+                    const Description = button.getAttribute("data-Description");
+                    const LiabilityTypeID = button.getAttribute("data-LiabilityTypeID");
+                    const LiabilityTypeName = button.getAttribute("data-LiabilityTypeName");
+                    const InitialBalance = button.getAttribute("data-InitialBalance");
+                    const CurrentBalance = button.getAttribute("data-CurrentBalance");
+                    const StartDate = button.getAttribute("data-StartDate");
+                    const EndDate = button.getAttribute("data-EndDate");
+                    const TargetBalance = button.getAttribute("data-TargetBalance");
+                    const TargetDate = button.getAttribute("data-TargetDate");
+                    
+                    document.getElementById('hiddenLiabilityID').value = LiabilityID; 
+                    document.getElementById('hiddenLiabilityTypeID').value = LiabilityTypeID;
+                    document.getElementById('editName').value = Name;
+                    document.getElementById('editDescription').value = Description; 
+                    document.getElementById('editLiabilityType').value = LiabilityTypeID;
+                    document.getElementById('editInitialBalance').value = InitialBalance;
+                    document.getElementById('editCurrentBalance').value = CurrentBalance; 
+                    document.getElementById('editStartDate').value = StartDate;
+                    document.getElementById('editEndDate').value = EndDate;
+                    document.getElementById('editTargetBalance').value = TargetBalance; 
+                    document.getElementById('editTargetDate').value = TargetDate;
+                    
+                }
+        
+                function saveChanges() {
+                    const selectedForm = document.getElementById("editForm");
+        
+                    const fd = new FormData(selectedForm);
+                    const urlEncoded = new URLSearchParams(fd).toString();
+        
+                    fetch('/liabilities/update', { 
+                        method: "POST", 
+                        body: urlEncoded, 
+                        headers: { 
+                            'content-type': 'application/x-www-form-urlencoded' ,
+                        }
+                    }).then(() => {
+                            window.location.reload();
+                        });
+                }
+        
+                function DeleteData() {
+                    const selectedForm = document.getElementById("editForm");
+        
+                    const fd = new FormData(selectedForm);
+                    const urlEncoded = new URLSearchParams(fd).toString();
+        
+                    fetch('/liabilities/delete', { 
+                        method: "POST", 
+                        body: urlEncoded, 
+                        headers: { 
+                            'content-type': 'application/x-www-form-urlencoded' ,
+                        }
+                    }).then(() => {
+                            window.location.reload();
+                        });
+                }
+        
+                function resetFields(){
+                    document.getElementById('hiddenLiabilityID').value = ""; 
+                    document.getElementById('hiddenLiabilityTypeID').value = "";
+                    document.getElementById('editName').value = "";
+                    document.getElementById('editDescription').value = ""; 
+                    document.getElementById('editLiabilityType').value = "";
+                    document.getElementById('editInitialBalance').value = "";
+                    document.getElementById('editCurrentBalance').value = ""; 
+                    document.getElementById('editStartDate').value = "";
+                    document.getElementById('editEndDate').value = "";
+                    document.getElementById('editTargetBalance').value = ""; 
+                    document.getElementById('editTargetDate').value = "";
+                    }
+            </script>
 
-    <!-- Form for editing the selected row -->
-    <div class="form-container">
-        <h2>Edit Selected Liability</h2>
-        <form id="editForm">
-            <input type="hidden" id="hiddenLiabilityID" name="hiddenLiabilityID">
-            <input type="hidden" id="hiddenLiabilityTypeID" name="hiddenLiabilityTypeID">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Liability Type</th>
+                        <th>Initial Balance</th>
+                        <th>Current Balance</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Target Balance</th>
+                        <th>Target Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% liabilities.forEach(liability => { %>
+                    <tr>
+                        <td><button 
+                            type="button" 
+                            data-LiabilityID="<%= liability.LiabilityID %>" 
+                            data-Name="<%= liability.Name %>" 
+                            data-Description="<%= liability.Description %>" 
+                            data-LiabilityTypeID="<%= liability.LiabilityTypeID %>" 
+                            data-LiabilityTypeName="<%= liability.LiabilityTypeName %>" 
+                            data-InitialBalance="<%= liability.InitialBalance %>" 
+                            data-CurrentBalance="<%= liability.CurrentBalance %>" 
+                            data-StartDate="<%= liability.StartDate %>" 
+                            data-EndDate="<%= liability.EndDate %>" 
+                            data-TargetBalance="<%= liability.TargetBalance %>" 
+                            data-TargetDate="<%= liability.TargetDate %>" 
+                            class="select-btn" 
+                            onclick="selectLiability(this);">Select</button>
+                        </td>
+                        <td><%= liability.Name %></td>
+                        <td><%= liability.Description %></td>
+                        <td><%= liability.LiabilityTypeName %></td>
+                        <td><%= liability.InitialBalance %></td>
+                        <td><%= liability.CurrentBalance %></td>
+                        <td><%= liability.StartDate %></td>
+                        <td><%= liability.EndDate %></td>
+                        <td><%= liability.TargetBalance %></td>
+                        <td><%= liability.TargetDate %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
 
-            <label for="editName">Name</label>
-            <input type="text" id="editName" name="editName" placeholder="Enter name">
+            <!-- Form for editing the selected row -->
+            <div class="form-container">
+                <h2>Edit Selected Liability</h2>
+                <form id="editForm">
+                    <input type="hidden" id="hiddenLiabilityID" name="hiddenLiabilityID">
+                    <input type="hidden" id="hiddenLiabilityTypeID" name="hiddenLiabilityTypeID">
 
-            <label for="editDescription">Description</label>
-            <input type="text" id="editDescription" name="editDescription" placeholder="Enter description">
+                    <label for="editName">Name</label>
+                    <input type="text" id="editName" name="editName" placeholder="Enter name">
 
-            <label for="editLiabilityType">Liability Type</label>
-            <select id="editLiabilityType" name="editLiabilityType">
-                <option value="0">_ Select Assest Type _</option>">
-                <% for(var count=0; count<LiabilityTypes.length; count++) {%>
-                <option value="<%= LiabilityTypes[count].LiabilityTypeID %>"><%= LiabilityTypes[count].Name %></option>">
-                <% } %>
-                </select><br><br>
-            <!-- <input type="text" id="editLiabilityType" name="editLiabilityType" placeholder="Enter liability type"> -->
+                    <label for="editDescription">Description</label>
+                    <input type="text" id="editDescription" name="editDescription" placeholder="Enter description">
 
-            <label for="editInitialBalance">Initial Balance</label>
-            <input type="text" id="editInitialBalance" name="editInitialBalance" placeholder="Enter initial balance">
+                    <label for="editLiabilityType">Liability Type</label>
+                    <select id="editLiabilityType" name="editLiabilityType">
+                        <option value="0">_ Select Assest Type _</option>">
+                        <% for(var count=0; count<LiabilityTypes.length; count++) {%>
+                        <option value="<%= LiabilityTypes[count].LiabilityTypeID %>"><%= LiabilityTypes[count].Name %></option>">
+                        <% } %>
+                        </select><br><br>
+                    <!-- <input type="text" id="editLiabilityType" name="editLiabilityType" placeholder="Enter liability type"> -->
 
-            <label for="editCurrentBalance">Current Balance</label>
-            <input type="text" id="editCurrentBalance" name="editCurrentBalance" placeholder="Enter current balance">
+                    <label for="editInitialBalance">Initial Balance</label>
+                    <input type="text" id="editInitialBalance" name="editInitialBalance" placeholder="Enter initial balance">
 
-            <label for="editStartDate">Start Date</label>
-            <input type="text" id="editStartDate" name="editStartDate" placeholder="Enter start date">
+                    <label for="editCurrentBalance">Current Balance</label>
+                    <input type="text" id="editCurrentBalance" name="editCurrentBalance" placeholder="Enter current balance">
 
-            <label for="editEndDate">End Date</label>
-            <input type="text" id="editEndDate" name="editEndDate" placeholder="Enter end date">
+                    <label for="editStartDate">Start Date</label>
+                    <input type="text" id="editStartDate" name="editStartDate" placeholder="Enter start date">
 
-            <label for="editTargetBalance">Target Balance</label>
-            <input type="text" id="editTargetBalance" name="editTargetBalance" placeholder="Enter target balance">
-            
-            <label for="editTargetDate">Target Date</label>
-            <input type="text" id="editTargetDate" name="editTargetDate" placeholder="Enter target date">
+                    <label for="editEndDate">End Date</label>
+                    <input type="text" id="editEndDate" name="editEndDate" placeholder="Enter end date">
 
-            <div class="button-container">
-                <button type="button" onclick="saveChanges()">Save Changes</button>
-                <button type="button" onclick="resetFields()">Clear</button>
-                <button type="button" onclick="DeleteData()">Delete</button>
+                    <label for="editTargetBalance">Target Balance</label>
+                    <input type="text" id="editTargetBalance" name="editTargetBalance" placeholder="Enter target balance">
+                    
+                    <label for="editTargetDate">Target Date</label>
+                    <input type="text" id="editTargetDate" name="editTargetDate" placeholder="Enter target date">
+
+                    <div class="button-container">
+                        <button type="button" onclick="saveChanges()">Save Changes</button>
+                        <button type="button" onclick="resetFields()">Clear</button>
+                        <button type="button" onclick="DeleteData()">Delete</button>
+                    </div>
+                </form>
             </div>
-        </form>
-    </div>
+        </section>
+    </main>
 </body>
 </html>
