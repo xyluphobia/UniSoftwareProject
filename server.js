@@ -18,8 +18,8 @@ app.set('views', path.join(__dirname, 'views'));
 const connection = mysql.createConnection({
     host: 'localhost', // The host of your MySQL server
     user: 'root', // Windows user who has access to MySQL
-    password: '', // If the user does not have a password, leave it empty
-    database: 'BudgetDB', // The name of the database you want to connect to
+    password: 'Password', // If the user does not have a password, leave it empty
+    database: 'betracker', // The name of the database you want to connect to
   });
 
 // Create a connection to Azure Database (Do not use for testing yet)
