@@ -8,19 +8,19 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Create a connection to local database (Creat and use this for testing)
-/*const connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'Omnibits',
     database: 'betracker'
-}); */
+});
 
-const connection = mysql.createConnection({
-    host: 'localhost', // The host of your MySQL server
-    user: 'root', // Windows user who has access to MySQL
-    password: 'Password', // If the user does not have a password, leave it empty
-    database: 'betracker', // The name of the database you want to connect to
-  });
+// const connection = mysql.createConnection({
+//     host: 'localhost', // The host of your MySQL server
+//     user: 'root', // Windows user who has access to MySQL
+//     password: 'Password', // If the user does not have a password, leave it empty
+//     database: 'betracker', // The name of the database you want to connect to
+//   });
 
 // Create a connection to Azure Database (Do not use for testing yet)
 /*const connection = mysql.createConnection({
@@ -101,6 +101,93 @@ app.get('/liabilitytypes', (req, res) => {
         }
         res.render('liabilitytypes', { liabilitytypes: results });
     });
+});
+
+app.get('/incomes', (req, res) => {
+    connection.query(`
+        SELECT i.IncomeID, i.Name, i.Description, it.IncomeTypeID, it.Name as IncomeTypeName, i.AssetID, a.Name as AssetName, 
+               i.Amount, DATE_FORMAT(i.StartDate, "%Y-%m-%d") as StartDate, 
+               DATE_FORMAT(i.EndDate, "%Y-%m-%d") as EndDate, i.RecurringPeriodID, 
+               DATE_FORMAT(i.LastReceivedDate, "%Y-%m-%d") as LastReceivedDate  
+        FROM incomes i 
+        JOIN incometypes it ON i.IncomeTypeID = it.IncomeTypeID 
+        JOIN assets a ON i.AssetID = a.AssetID
+    `, (err, results) => {
+        if (err) {
+            return res.send('Error fetching data: ' + err.message);
+        }
+        connection.query('SELECT IncomeTypeID, Name FROM incometypes ORDER BY Name', (err, results2) => {
+            if (err) {
+                return res.send('Error fetching data: ' + err.message);
+            }
+            connection.query('SELECT AssetID, Name FROM assets ORDER BY Name', (err, results3) => {
+                if (err) {
+                    return res.send('Error fetching data: ' + err.message);
+                }
+                res.render('incomes', { incomes: results, incomeTypes: results2, assets: results3 });
+            });
+        });
+    });
+});
+
+app.get('/incometypes', (req, res) => {
+    connection.query('SELECT * FROM incometypes', (err, results) => {
+        if (err) {
+            return res.send('Error fetching data: ' + err.message);
+        }
+        res.render('incometypes', { incometypes: results });
+    });
+});
+
+app.get('/expensetypes', (req, res) => {
+    connection.query('SELECT * FROM expensetypes', (err, results) => {
+        if (err) {
+            return res.send('Error fetching data: ' + err.message);
+        }
+        res.render('expensetypes', { expensetypes: results });
+    });
+});
+app.get('/expenses', (req, res) => {
+    connection.query(`
+        SELECT i.ExpenseID, i.Name, i.Description, it.ExpenseTypeID, it.Name as ExpenseTypeName, i.AssetID, a.Name as AssetName, 
+               i.Amount, DATE_FORMAT(i.StartDate, "%Y-%m-%d") as StartDate, 
+               DATE_FORMAT(i.EndDate, "%Y-%m-%d") as EndDate, i.RecurringPeriodID, 
+               DATE_FORMAT(i.LastPaidDate, "%Y-%m-%d") as LastPaidDate 
+        FROM expenses i 
+        JOIN expensetypes it ON i.ExpenseTypeID = it.ExpenseTypeID 
+        JOIN assets a ON i.AssetID = a.AssetID
+    `, (err, results) => {
+        if (err) {
+            return res.send('Error fetching data: ' + err.message);
+        }
+        connection.query('SELECT ExpenseTypeID, Name FROM expensetypes ORDER BY Name', (err, results2) => {
+            if (err) {
+                return res.send('Error fetching data: ' + err.message);
+            }
+            connection.query('SELECT AssetID, Name FROM assets ORDER BY Name', (err, results3) => {
+                if (err) {
+                    return res.send('Error fetching data: ' + err.message);
+                }
+                res.render('expenses', { expenses: results, expenseTypes: results2, assets: results3 });
+            });
+        });
+    });
+});
+
+app.get('/finance', (req, res) => {
+    connection.query('SELECT SequenceID, Name, AssetID, LiabilityID FROM fincols ORDER By sequenceID', (err, finColsResults) => {
+        if (err) {
+            return res.send('Error fetching data: ' + err.message);
+        }
+        connection.query(`
+            SELECT fc.SequenceID, DATE_FORMAT(fl.LineDate,'%Y-%m-%d') as LineDate, fl.AssetID, fl.LiabilityID, fl.LineBalance AS LineBalance 
+            FROM  fincols fc, finlines fl 
+            WHERE if(isnull(fc.AssetID), fc.LiabilityID = fl.LiabilityID, fc.AssetID = fl.AssetID )
+            ORDER BY fl.LineDate, fc.sequenceID
+            `, (err, finLinesResults) => {
+            res.render('finance', { finCols: finColsResults, finLines: finLinesResults});
+        });
+    });    
 });
 
 // Route for the about page

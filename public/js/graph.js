@@ -1,4 +1,3 @@
-
 // Declare the chart dimensions and margins.
 const margin = { top: 30, right: 30, bottom: 40, left: 50 };
 const width = 900 - margin.left - margin.right;

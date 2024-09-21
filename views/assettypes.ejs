@@ -6,8 +6,7 @@
     <title>Budget Tracker</title>
     <link rel="stylesheet" href="../styles/reset.css">
     <link rel="stylesheet" href="../styles/main.css">
-
-    <link rel="stylesheet" href="../public/styles.css">
+    <link rel="stylesheet" href="../styles/styles.css">
 </head>
 <body>
     <header class="header-main">
@@ -19,9 +18,12 @@
     <main>
         <aside class="nav-sidebar">
             <ul>
-                <li><button onclick="window.location.href = 'index'">Home</button></li>
-                <li><button onclick="window.location.href = 'about'">About Us</button></li>
-                <li><button onclick="window.location.href = 'contact'">Contact</button></li>
+                <li><button onclick="window.location.href = '/'">Home</button></li>
+                <li><button onclick="window.location.href = 'finance'">Finance</button></li>
+                <li><button onclick="window.location.href = 'incomes'">Incomes</button></li>
+                <li><button onclick="window.location.href = 'incometypes'">Income Types</button></li>
+                <li><button onclick="window.location.href = 'expenses'">Expenses</button></li>
+                <li><button onclick="window.location.href = 'expensetypes'">Expense Types</button></li>
                 <li><button onclick="window.location.href = 'assets'">Assets</button></li>
                 <li><button onclick="window.location.href = 'assettypes'">Asset Types</button></li>
                 <li><button onclick="window.location.href = 'liabilities'">Liability</button></li>
@@ -34,7 +36,7 @@
             <button>Setup</button>
         </nav>
 
-        <section class="page-content">
+       <section class="page-content">
             <script>
                 function selectAssetType(button) {
                     //const row = button.closest('tr');
