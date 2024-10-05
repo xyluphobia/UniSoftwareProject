@@ -13,7 +13,7 @@
 <body>
     <header class="header-main">
         <section class="header-box">
-            <h1 class="current-page">Asset Types</h1>
+            <h1 class="current-page">Finance</h1>
             <p class="user-role-display">Logged In As: <span class="user-role">Admin</span></p>
         </section>
     </header>
@@ -22,6 +22,8 @@
             <ul>
                 <li><button onclick="window.location.href = '/'">Home</button></li>
                 <li><button onclick="window.location.href = 'finance'">Finance</button></li>
+                <li><button onclick="window.location.href = 'financebreakdowns'">Fin. Breakdown</button></li>
+                <li><button onclick="window.location.href = 'financecols'">Fin. Columns</button></li>
                 <li><button onclick="window.location.href = 'incomes'">Incomes</button></li>
                 <li><button onclick="window.location.href = 'incometypes'">Income Types</button></li>
                 <li><button onclick="window.location.href = 'expenses'">Expenses</button></li>
@@ -40,30 +42,22 @@
 
         <section class="page-content">
             <script>
-                function selectAssetType(button) {
-                    //const row = button.closest('tr');
-                    const assetTypeID = button.getAttribute("data-AssetTypeID");
-                    const name = button.getAttribute("data-Name");
-                    const description = button.getAttribute("data-Description");
-        
-                    document.getElementById('hiddenAssetTypeID').value = assetTypeID;
-                    document.getElementById('editName').value = name;
-                    document.getElementById('editDescription').value = description;
+                function openFinanceBreakdownScreen(dateBreakdown) {
+
+                    const urlEncoded = new URLSearchParams({dateBreakdown: dateBreakdown});
+                    window.location.href = "/financebreakdowns?" + urlEncoded.toString();
                 }
             </script>
             <div>
                 <form action="" 
                     <input type="date">
                 </form>
-                <form action=""></form>
-                    <button>Refresh</button>
-                    <button>Apply</button>
-                </form>
             </div>
             <div class="scrollable-table">
                 <table class="table">
                     <thead>
                         <tr>
+                            <th>Breakdown</th>
                             <th>Start Date</th>
                             <% finCols.forEach(finCol => { %>
                             <th><%= finCol.Name %></th>    
@@ -91,6 +85,7 @@
                                 if(colIndex == 0) {
                             %>
                             <tr>
+                                <td><button type="button" onclick="openFinanceBreakdownScreen('<%= finLine.LineDate %>')">Breakdown</button></td>
                                 <td><%= finLine.LineDate %></td>            
                             <%  } %>
                                 <td>

@@ -58,6 +58,25 @@ button {
 }
 
 select {
+    padding: 10px 20px;
+    margin-bottom: 10px; /* Smaller margin */
     border: 2px solid lightgray;
     appearance: auto;
+}
+
+.radio-button-container {
+    display:flex;
+    align-items: center;
+    width: 70%;
+    align-content: center;
+}
+
+input[type="radio"].radio-button-cell {
+    appearance: auto; 
+    display: flex;
+}
+
+input[type="checkbox"].checkbox-select {
+    appearance: auto; 
+    /* display: flex; */
 }

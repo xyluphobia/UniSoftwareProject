@@ -45,32 +45,79 @@
                     const ExpenseTypeID = button.getAttribute("data-ExpenseTypeID");
                     const ExpenseTypeName = button.getAttribute("data-ExpenseTypeName");
                     const AssetID = button.getAttribute("data-AssetID");
+                    const AssetName = button.getAttribute("data-AssetName");
+                    const LiabilityID = button.getAttribute("data-LiabilityID");
+                    const LiabilityName = button.getAttribute("data-LiabilityName");
                     const StartDate = button.getAttribute("data-StartDate");
                     const EndDate = button.getAttribute("data-EndDate");
                     const Amount = button.getAttribute("data-Amount");
                     const RecurringPeriodID = button.getAttribute("data-RecurringPeriodID");
+                    const RecurringPeriodName = button.getAttribute("data-RecurringPeriodName");
                     const LastPaidDate = button.getAttribute("data-LastPaidDate");
+                    const Applied = button.getAttribute("data-Applied");
                     
                     document.getElementById('hiddenExpenseID').value = ExpenseID; 
                     document.getElementById('hiddenExpenseTypeID').value = ExpenseTypeID;
                     document.getElementById('editName').value = Name;
                     document.getElementById('editDescription').value = Description; 
                     document.getElementById('editExpenseType').value = ExpenseTypeID;
-                    document.getElementById('editAssetID').value = AssetID;
                     document.getElementById('editStartDate').value = StartDate;
                     document.getElementById('editEndDate').value = EndDate;
                     document.getElementById('editAmount').value = Amount; 
-                    document.getElementById('editRecurringPeriodID').value = RecurringPeriodID;
+                    document.getElementById('editRecurringPeriod').value = RecurringPeriodID;
                     document.getElementById('editLastPaidDate').value = LastPaidDate;
+
+                    if(AssetID != "") {
+                        document.getElementById('editAsset').value = AssetID;
+                        document.getElementById('editLiability').value = "";
+                        document.getElementById('editLiability').disabled = true;
+                        document.getElementById('editAssetOrLiability_Asset').checked = true;
+                    }
+                    else if (LiabilityID != "") {
+                        document.getElementById('editLiability').value = LiabilityID;
+                        document.getElementById('editAsset').value = "";
+                        document.getElementById('editAsset').disabled = true;
+                        document.getElementById('editAssetOrLiability_Liability').checked = true;
+                    }
                 }
-        
+
+                function showHideAssetLiability() {
+                    let checkAsset = document.getElementById("editAssetOrLiability_Asset");
+                    let checkLiability = document.getElementById("editAssetOrLiability_Liability");
+                    let listAsset = document.getElementById("editAsset");
+                    let listLiability = document.getElementById("editLiability");
+
+                    if(checkAsset.checked) {
+                        if(listAsset.value == "") {
+                            listAsset.value = "0";
+                        }
+                        listAsset.disabled = false;
+                        listLiability.value = "";
+                        listLiability.disabled = true;
+                    }
+                    else if(checkLiability.checked) {
+                        if(listLiability.value == "") {
+                            listLiability.value = "0";
+                        }
+                        listLiability.disabled = false;
+                        listAsset.value = "";
+                        listAsset.disabled = true;
+                    }
+/*                     else {
+                        listAsset.value = "0";
+                        listAsset.disabled = false;
+                        listLiability.value = "0";
+                        listLiability.disabled = false;
+                    } */
+                }
+
                 function saveChanges() {
                     const selectedForm = document.getElementById("editForm");
         
                     const fd = new FormData(selectedForm);
                     const urlEncoded = new URLSearchParams(fd).toString();
         
-                    fetch('/expense/update', { 
+                    fetch('/expenses/update', { 
                         method: "POST", 
                         body: urlEncoded, 
                         headers: { 
@@ -87,7 +134,24 @@
                     const fd = new FormData(selectedForm);
                     const urlEncoded = new URLSearchParams(fd).toString();
         
-                    fetch('/expense/delete', { 
+                    fetch('/expenses/delete', { 
+                        method: "POST", 
+                        body: urlEncoded, 
+                        headers: { 
+                            'content-type': 'application/x-www-form-urlencoded',
+                        }
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+
+                function applyExpense() {
+                    const selectedForm = document.getElementById("editForm");
+        
+                    const fd = new FormData(selectedForm);
+                    const urlEncoded = new URLSearchParams(fd).toString();
+        
+                    fetch('/expenses/apply', { 
                         method: "POST", 
                         body: urlEncoded, 
                         headers: { 
@@ -104,12 +168,19 @@
                     document.getElementById('editName').value = "";
                     document.getElementById('editDescription').value = ""; 
                     document.getElementById('editExpenseType').value = "";
-                    document.getElementById('editAssetID').value = "";
+                    document.getElementById('editAsset').value = "0";
+                    document.getElementById('editLiability').value = "0";
                     document.getElementById('editStartDate').value = "";
                     document.getElementById('editEndDate').value = "";
                     document.getElementById('editAmount').value = ""; 
-                    document.getElementById('editRecurringPeriodID').value = "";
+                    document.getElementById('editRecurringPeriod').value = "";
                     document.getElementById('editLastPaidDate').value = "";
+
+                    document.getElementById('editAssetOrLiability_Asset').checked = false;
+                    document.getElementById('editAsset').disabled = false;
+                    document.getElementById('editAssetOrLiability_Liability').checked = false;
+                    document.getElementById('editLiability').disabled = false;
+                    
                 }
             </script>
         </head>
@@ -118,10 +189,12 @@
                 <thead>
                     <tr>
                         <th>Select</th>
+                        <th>Applied</th>                        
                         <th>Name</th>
                         <th>Description</th>
                         <th>Expense Type</th>
                         <th>Asset</th>
+                        <th>Liability</th>
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Amount</th>
@@ -134,28 +207,38 @@
                     <tr>
                         <td><button 
                             type="button" 
+                            class="select-btn" 
                             data-ExpenseID="<%= expense.ExpenseID %>" 
                             data-Name="<%= expense.Name %>" 
                             data-Description="<%= expense.Description %>" 
                             data-ExpenseTypeID="<%= expense.ExpenseTypeID %>" 
                             data-ExpenseTypeName="<%= expense.ExpenseTypeName %>" 
                             data-AssetID="<%= expense.AssetID %>" 
+                            data-AssetName="<%= expense.AssetName %>" 
+                            data-LiabilityID="<%= expense.LiabilityID %>" 
+                            data-LiabilityName="<%= expense.LiabilityName %>" 
                             data-StartDate="<%= expense.StartDate %>" 
                             data-EndDate="<%= expense.EndDate %>" 
                             data-Amount="<%= expense.Amount %>" 
                             data-RecurringPeriodID="<%= expense.RecurringPeriodID %>" 
+                            data-RecurringPeriodName="<%= recurringPeriod[expense.RecurringPeriodID] %>" 
                             data-LastPaidDate="<%= expense.LastPaidDate %>" 
-                            class="select-btn" 
+                            data-Applied="<%= expense.Applied %>" 
                             onclick="selectExpense(this);">Select</button>
+                        </td>
+                        <td>
+                            <% if(expense.Applied == 1) { cbChecked="checked" } else { cbChecked="" } %>
+                            <input type="checkbox" class="checkbox-select" id="expenseApplied" name="expenseApplied" <%= cbChecked %> onclick="return false" readonly>
                         </td>
                         <td><%= expense.Name %></td>
                         <td><%= expense.Description %></td>
                         <td><%= expense.ExpenseTypeName %></td>
-                        <td><%= expense.AssetID %></td>
+                        <td><%= expense.AssetName %></td>
+                        <td><%= expense.LiabilityName %></td>
                         <td><%= expense.StartDate %></td>
                         <td><%= expense.EndDate %></td>
                         <td><%= expense.Amount %></td>
-                        <td><%= expense.RecurringPeriodID %></td>
+                        <td><%= recurringPeriod[expense.RecurringPeriodID] %></td>
                         <td><%= expense.LastPaidDate %></td>
                     </tr>
                     <% }) %>
@@ -177,14 +260,49 @@
         
                     <label for="editExpenseType">Expense Type</label>
                     <select id="editExpenseType" name="editExpenseType">
+                        <option disabled>
                         <option value="0">_ Select Expense Type _</option>
                         <% expenseTypes.forEach(type => { %>
                         <option value="<%= type.ExpenseTypeID %>"><%= type.Name %></option>
                         <% }) %>
                     </select>
-        
-                    <label for="editAssetID">Asset</label>
-                    <input type="text" id="editAssetID" name="editAssetID" placeholder="Enter asset ID">
+
+                    <div class="radio-button-container">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input type="radio" class="radio-button-cell" id="editAssetOrLiability_Asset" name="editAssetOrLiability" value="Asset" onClick="showHideAssetLiability()">
+                                        <label for="editAssetOrLiability_Asset">Asset</label>
+                                    </td>
+                                    <td>                                
+                                        <input type="radio" class="radio-button-cell" id="editAssetOrLiability_Liability" name="editAssetOrLiability" value="Liability" onClick="showHideAssetLiability()">
+                                        <label for="editAssetOrLiability_Liability">Liability</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select id="editAsset" name="editAsset" onclick="document.getElementById('editAssetOrLiability_Asset').click()">
+                                            <label for="editAsset">Asset</label>
+                                            <option value="0">_ Select Asset _</option>
+                                            <% assets.forEach(type => { %>
+                                            <option value="<%= type.AssetID %>"><%= type.Name %></option>
+                                            <% }) %>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select id="editLiability" name="editLiability" onclick="document.getElementById('editAssetOrLiability_Liability').click()">
+                                            <label for="editLiability">Liability</label>
+                                            <option value="0">_ Select Liability _</option>
+                                            <% liabilities.forEach(type => { %>
+                                            <option value="<%= type.LiabilityID %>"><%= type.Name %></option>
+                                            <% }) %>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
         
                     <label for="editStartDate">Start Date</label>
                     <input type="text" id="editStartDate" name="editStartDate" placeholder="Enter start date">
@@ -195,17 +313,17 @@
                     <label for="editAmount">Amount</label>
                     <input type="text" id="editAmount" name="editAmount" placeholder="Enter amount">
         
-                    <label for="editRecurringPeriodID">Recurring Period</label>
-                    <select id="editRecurringPeriodID" name="editRecurringPeriodID">
+                    <label for="editRecurringPeriod">Recurring Period</label>
+                    <select id="editRecurringPeriod" name="editRecurringPeriod">
                         <option value="0">_ Select Recurring Period _</option>
-                        <option value="1">Week</option>
-                        <option value="2">Fortnight</option>
-                        <option value="3">Month</option>
-                        <option value="4">Quarter</option>
-                        <option value="5">Half Year</option>
-                        <option value="6">Year</option>
+                        <% recurringPeriod.forEach((typeValue, typeIndex) => { %>
+
+                            <% if(typeIndex > 0 ) {%>
+                                <option value="<%= typeIndex %>"><%= typeValue %></option>
+                            <%}%>
+                        <% }) %>
                     </select>
-        
+
                     <label for="editLastPaidDate">Last Paid Date</label>
                     <input type="text" id="editLastPaidDate" name="editLastPaidDate" placeholder="Enter last paid date">
         
@@ -213,6 +331,7 @@
                         <button type="button" onclick="saveChanges()">Save Changes</button>
                         <button type="button" onclick="resetFields()">Clear</button>
                         <button type="button" onclick="deleteExpense()">Delete</button>
+                        <button type="button" onclick="applyExpense()">Apply</button>
                     </div>
                 </form>
             </div>

@@ -1,12 +1,12 @@
 .scrollable-table {
-    height: 50%;
+    height: 90%;
     width: 95%;
     overflow-y: auto;
     scroll-snap-type: y mandatory;
 }
 
 .scrollable-table > .table {
-    width: 100%;
+    width: 80%;
 }
 
 .table {

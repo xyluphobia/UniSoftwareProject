@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <link rel="stylesheet" href="../styles/reset.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+</head>
+<body>
+    <header class="header-main">
+        <section class="header-box">
+            <h1 class="current-page">Expenses</h1>
+            <p class="user-role-display">Logged In As: <span class="user-role">Admin</span></p>
+        </section>
+    </header>
+    <main>
+        <aside class="nav-sidebar">
+            <ul>
+                <li><button onclick="window.location.href = '/'">Home</button></li>
+                <li><button onclick="window.location.href = 'finance'">Finance</button></li>
+                <li><button onclick="window.location.href = 'incomes'">Incomes</button></li>
+                <li><button onclick="window.location.href = 'incometypes'">Income Types</button></li>
+                <li><button onclick="window.location.href = 'expenses'">Expenses</button></li>
+                <li><button onclick="window.location.href = 'expensetypes'">Expense Types</button></li>
+                <li><button onclick="window.location.href = 'assets'">Assets</button></li>
+                <li><button onclick="window.location.href = 'assettypes'">Asset Types</button></li>
+                <li><button onclick="window.location.href = 'liabilities'">Liability</button></li>
+                <li><button onclick="window.location.href = 'liabilitytypes'">Liability Types</button></li>
+            </ul>
+        </aside>
+
+        <nav class="user-control-navbar">
+            <button>Logout</button>
+            <button>Setup</button>
+        </nav>
+
+        <section class="page-content">
+            <script>
+                function selectExpense(button) {
+                    const ExpenseID = button.getAttribute("data-ExpenseID");
+                    const Name = button.getAttribute("data-Name");
+                    const Description = button.getAttribute("data-Description");
+                    const ExpenseTypeID = button.getAttribute("data-ExpenseTypeID");
+                    const ExpenseTypeName = button.getAttribute("data-ExpenseTypeName");
+                    const AssetID = button.getAttribute("data-AssetID");
+                    const StartDate = button.getAttribute("data-StartDate");
+                    const EndDate = button.getAttribute("data-EndDate");
+                    const Amount = button.getAttribute("data-Amount");
+                    const RecurringPeriodID = button.getAttribute("data-RecurringPeriodID");
+                    const LastPaidDate = button.getAttribute("data-LastPaidDate");
+                    
+                    document.getElementById('hiddenExpenseID').value = ExpenseID; 
+                    document.getElementById('hiddenExpenseTypeID').value = ExpenseTypeID;
+                    document.getElementById('editName').value = Name;
+                    document.getElementById('editDescription').value = Description; 
+                    document.getElementById('editExpenseType').value = ExpenseTypeID;
+                    document.getElementById('editAssetID').value = AssetID;
+                    document.getElementById('editStartDate').value = StartDate;
+                    document.getElementById('editEndDate').value = EndDate;
+                    document.getElementById('editAmount').value = Amount; 
+                    document.getElementById('editRecurringPeriodID').value = RecurringPeriodID;
+                    document.getElementById('editLastPaidDate').value = LastPaidDate;
+                }
+        
+                function saveChanges() {
+                    const selectedForm = document.getElementById("editForm");
+        
+                    const fd = new FormData(selectedForm);
+                    const urlEncoded = new URLSearchParams(fd).toString();
+        
+                    fetch('/expense/update', { 
+                        method: "POST", 
+                        body: urlEncoded, 
+                        headers: { 
+                            'content-type': 'application/x-www-form-urlencoded',
+                        }
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+        
+                function deleteExpense() {
+                    const selectedForm = document.getElementById("editForm");
+        
+                    const fd = new FormData(selectedForm);
+                    const urlEncoded = new URLSearchParams(fd).toString();
+        
+                    fetch('/expense/delete', { 
+                        method: "POST", 
+                        body: urlEncoded, 
+                        headers: { 
+                            'content-type': 'application/x-www-form-urlencoded',
+                        }
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+        
+                function resetFields(){
+                    document.getElementById('hiddenExpenseID').value = ""; 
+                    document.getElementById('hiddenExpenseTypeID').value = "";
+                    document.getElementById('editName').value = "";
+                    document.getElementById('editDescription').value = ""; 
+                    document.getElementById('editExpenseType').value = "";
+                    document.getElementById('editAssetID').value = "";
+                    document.getElementById('editStartDate').value = "";
+                    document.getElementById('editEndDate').value = "";
+                    document.getElementById('editAmount').value = ""; 
+                    document.getElementById('editRecurringPeriodID').value = "";
+                    document.getElementById('editLastPaidDate').value = "";
+                }
+            </script>
+        </head>
+        <body>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Expense Type</th>
+                        <th>Asset</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Amount</th>
+                        <th>Recurring Period</th>
+                        <th>Last Paid Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% expenses.forEach(expense => { %>
+                    <tr>
+                        <td><button 
+                            type="button" 
+                            data-ExpenseID="<%= expense.ExpenseID %>" 
+                            data-Name="<%= expense.Name %>" 
+                            data-Description="<%= expense.Description %>" 
+                            data-ExpenseTypeID="<%= expense.ExpenseTypeID %>" 
+                            data-ExpenseTypeName="<%= expense.ExpenseTypeName %>" 
+                            data-AssetID="<%= expense.AssetID %>" 
+                            data-StartDate="<%= expense.StartDate %>" 
+                            data-EndDate="<%= expense.EndDate %>" 
+                            data-Amount="<%= expense.Amount %>" 
+                            data-RecurringPeriodID="<%= expense.RecurringPeriodID %>" 
+                            data-LastPaidDate="<%= expense.LastPaidDate %>" 
+                            class="select-btn" 
+                            onclick="selectExpense(this);">Select</button>
+                        </td>
+                        <td><%= expense.Name %></td>
+                        <td><%= expense.Description %></td>
+                        <td><%= expense.ExpenseTypeName %></td>
+                        <td><%= expense.AssetID %></td>
+                        <td><%= expense.StartDate %></td>
+                        <td><%= expense.EndDate %></td>
+                        <td><%= expense.Amount %></td>
+                        <td><%= expense.RecurringPeriodID %></td>
+                        <td><%= expense.LastPaidDate %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        
+            <!-- Form for editing the selected row -->
+            <div class="form-container">
+                <h2>Edit Selected Expense</h2>
+                <form id="editForm">
+                    <input type="hidden" id="hiddenExpenseID" name="hiddenExpenseID">
+                    <input type="hidden" id="hiddenExpenseTypeID" name="hiddenExpenseTypeID">
+        
+                    <label for="editName">Name</label>
+                    <input type="text" id="editName" name="editName" placeholder="Enter name">
+        
+                    <label for="editDescription">Description</label>
+                    <input type="text" id="editDescription" name="editDescription" placeholder="Enter description">
+        
+                    <label for="editExpenseType">Expense Type</label>
+                    <select id="editExpenseType" name="editExpenseType">
+                        <option value="0">_ Select Expense Type _</option>
+                        <% expenseTypes.forEach(type => { %>
+                        <option value="<%= type.ExpenseTypeID %>"><%= type.Name %></option>
+                        <% }) %>
+                    </select>
+        
+                    <label for="editAssetID">Asset</label>
+                    <input type="text" id="editAssetID" name="editAssetID" placeholder="Enter asset ID">
+        
+                    <label for="editStartDate">Start Date</label>
+                    <input type="text" id="editStartDate" name="editStartDate" placeholder="Enter start date">
+        
+                    <label for="editEndDate">End Date</label>
+                    <input type="text" id="editEndDate" name="editEndDate" placeholder="Enter end date">
+        
+                    <label for="editAmount">Amount</label>
+                    <input type="text" id="editAmount" name="editAmount" placeholder="Enter amount">
+        
+                    <label for="editRecurringPeriodID">Recurring Period</label>
+                    <select id="editRecurringPeriodID" name="editRecurringPeriodID">
+                        <option value="0">_ Select Recurring Period _</option>
+                        <option value="1">Week</option>
+                        <option value="2">Fortnight</option>
+                        <option value="3">Month</option>
+                        <option value="4">Quarter</option>
+                        <option value="5">Half Year</option>
+                        <option value="6">Year</option>
+                    </select>
+        
+                    <label for="editLastPaidDate">Last Paid Date</label>
+                    <input type="text" id="editLastPaidDate" name="editLastPaidDate" placeholder="Enter last paid date">
+        
+                    <div class="button-container">
+                        <button type="button" onclick="saveChanges()">Save Changes</button>
+                        <button type="button" onclick="resetFields()">Clear</button>
+                        <button type="button" onclick="deleteExpense()">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
