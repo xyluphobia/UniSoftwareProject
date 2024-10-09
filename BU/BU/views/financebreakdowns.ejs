@@ -12,7 +12,7 @@
     <header class="header-main">
         <section class="header-box">
             <h1 class="current-page">Finance Breakdown</h1>
-            <p class="user-role-display">Logged In As: <span class="user-role">Admin</span></p>
+            <p class="user-role-display">Logged In As: <span class="user-role"><%= displayuser %></span></p>
         </section>
     </header>
     <main>
@@ -28,11 +28,12 @@
                 <li><button onclick="window.location.href = 'assettypes'">Asset Types</button></li>
                 <li><button onclick="window.location.href = 'liabilities'">Liability</button></li>
                 <li><button onclick="window.location.href = 'liabilitytypes'">Liability Types</button></li>
+                <li><button onclick="window.location.href = 'configuration'">Configuration</button></li>
             </ul>
         </aside>
 
         <nav class="user-control-navbar">
-            <button>Logout</button>
+            <a href="/logout"><button>Logout</button></a>
             <button>Setup</button>
         </nav>
 
