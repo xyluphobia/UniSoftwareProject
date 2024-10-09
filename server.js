@@ -16,20 +16,20 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Create a connection to local database (Creat and use this for testing)
-/* const connConfig = {
+const connConfig = {
     host: 'localhost',
     user: 'root',
     password: 'Omnibits',
     database: 'betracker'
-}; */
+};
 
 // Create a connection to Azure Database (Do not use for testing yet)
-const connConfig = {
+/* const connConfig = {
     host:'obsserver.mysql.database.azure.com',
     user:'OBSAdmin',
     password:'OmnibitsS1',
     database:'betracker'
-}
+} */
 
 class clsMessages { 
 
