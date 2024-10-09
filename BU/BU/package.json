@@ -1,0 +1,18 @@
+{
+  "name": "your-app-name",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "d3": "^7.9.0",
+    "ejs": "^3.1.10",
+    "express": "^5.0.0",
+    "moment": "^2.30.1",
+    "mssql": "^11.0.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.11.0"
+  }
+}
