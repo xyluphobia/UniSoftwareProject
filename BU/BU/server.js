@@ -41,7 +41,7 @@ app.set('views', path.join(__dirname, 'views'));
 const connConfig = {
     host: 'localhost',
     user: 'root',
-    password: 'Sirslapsalot96',
+    password: 'Password',
     database: 'betracker'
 };
 
