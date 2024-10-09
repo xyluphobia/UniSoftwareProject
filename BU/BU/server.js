@@ -1777,7 +1777,7 @@ app.post('/financecols/delete', fincols_middle, (req,res) => {
         }
 });
 
-app.get('/financebreakdowns', (req, res) => {
+app.get('/financebreakdowns', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
 
     console.log(req.query.dateBreakdown);
 
@@ -1820,7 +1820,8 @@ app.get('/financebreakdowns', (req, res) => {
                         }
                         else {
                             let messages = null; // messaging is not implemented
-                            res.render('financebreakdowns', { messages: messages, financebreakdowns: results1, incomes: results2, expenses: results3});                            
+                            const displayuser = req.user.username;
+                            res.render('financebreakdowns', { messages: messages, financebreakdowns: results1, incomes: results2, expenses: results3, displayuser});                            
                         }
                     });  
                 });
