@@ -11,6 +11,28 @@ const moment = require('moment');
 const { Console } = require('console');
 const app = express();
 
+const session = require('express-session'); 
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
+
+flash = require('express-flash')
+app.use(
+    session({
+      resave: true,
+      saveUninitialized: true,
+      secret:"dfghj",
+      cookie: { secure: false, maxAge: 14400000 },
+    })
+);
+app.use(flash());
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(session({ secret: 'your-secret-key', resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Set EJS as templating engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -205,17 +227,70 @@ connection.connect(err => {
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+//route for login screen
+app.get('/login', (req, res) => { 
+    res.render('login');
+
+    connection.query('SELECT * FROM users', (err, results) => {
+        if (err) {
+            return res.send('Error fetching data: ' + err.message);
+        }
+
+        users = [];
+
+        for(let i = 0; i <= results.length -1; i++){
+            id = results[i].UserID;
+            authlevel = results[i].AuthLevel;
+            username = results[i].Username;
+            password = results[i].Password;
+            
+            users.push({
+                id: id,
+                authlevel: authlevel,
+                username: username,
+                passwordHash: bcrypt.hashSync(password, 10)
+            });
+        }
+
+        passport.use(new LocalStrategy(
+            function(username, password, done) {
+              const user = users.find(user => user.username === username);
+              if (user && bcrypt.compareSync(password, user.passwordHash)) {
+                return done(null, user);
+              } else {
+                return done(null, false, { message: 'Invalid credentials' });
+              }
+            }
+          ));
+
+          passport.serializeUser(function(user, done) {
+            done(null, user.id);
+          });
+          
+          passport.deserializeUser(function(id, done) {
+            const user = users.find(user => user.id === id);
+            done(null, user);
+          });
+    });   
+});
+
 // Route for the home page
 app.get('/', (req, res) => {
     connection.query('SELECT * FROM users', (err, results) => {
         if (err) {
             return res.send('Error fetching data: ' + err.message);
         }
-        res.render('index', { users: results });
+        if(typeof req.user !== 'undefined'){ 
+            const displayuser = req.user.username;
+            res.render('index', { users: results, displayuser });
+        }else{
+            const displayuser = "not logged in";
+            res.render('index', { users: results, displayuser  });
+        }
     });
 });
 
-app.get('/assets', (req, res) => {
+app.get('/assets', ensureAuthenticated, checkAuthLevel(2), (req, res) => { 
     connection.query('SELECT a.AssetID, a.Name, a.Description, at.AssetTypeID, at.Name as AssetTypeName, a.InitialBalance, a.CurrentBalance, DATE_FORMAT(a.StartDate, "%Y-%m-%d") as StartDate, DATE_FORMAT(a.EndDate, "%Y-%m-%d") as EndDate, a.TargetBalance, DATE_FORMAT(a.TargetDate, "%Y-%m-%d") as TargetDate FROM assets a, assettypes at  WHERE a.AssetTypeID = at.AssetTypeID', (err, results) => {
         if (err) {
             return res.send('Error fetching data: ' + err.message);
@@ -224,23 +299,25 @@ app.get('/assets', (req, res) => {
             if (err) {
                 return res.send('Error fetching data: ' + err.message);
             }
-            res.render('assets', { assets: results, AssetTypes: results2 });
+            const displayuser = req.user.username;
+            res.render('assets', { assets: results, AssetTypes: results2, displayuser });
         });
         
 
     });
 });
 
-app.get('/assettypes', (req, res) => {
+app.get('/assettypes', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
     connection.query('SELECT * FROM assettypes', (err, results) => {
         if (err) {
             return res.send('Error fetching data: ' + err.message);
         }
-        res.render('assettypes', { assettypes: results });
+        const displayuser = req.user.username;
+        res.render('assettypes', { assettypes: results, displayuser });
     });
 });
 
-app.get('/liabilities', (req, res) => {
+app.get('/liabilities', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
     connection.query('SELECT a.LiabilityID, a.Name, a.Description, at.LiabilityTypeID, at.Name as LiabilityTypeName, a.InitialBalance, a.CurrentBalance, DATE_FORMAT(a.StartDate, "%Y-%m-%d") as StartDate, DATE_FORMAT(a.EndDate, "%Y-%m-%d") as EndDate, a.TargetBalance, DATE_FORMAT(a.TargetDate, "%Y-%m-%d") as TargetDate FROM liabilities a, liabilitytypes at  WHERE a.LiabilityTypeID = at.LiabilityTypeID', (err, results) => {
         if (err) {
             return res.send('Error fetching data: ' + err.message);
@@ -249,23 +326,25 @@ app.get('/liabilities', (req, res) => {
             if (err) {
                 return res.send('Error fetching data: ' + err.message);
             }
-            res.render('liabilities', { liabilities: results, LiabilityTypes: results2 });
+            const displayuser = req.user.username;
+            res.render('liabilities', { liabilities: results, LiabilityTypes: results2, displayuser });
         });
         
 
     });
 });
 
-app.get('/liabilitytypes', (req, res) => {
+app.get('/liabilitytypes', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
     connection.query('SELECT * FROM liabilitytypes', (err, results) => {
         if (err) {
             return res.send('Error fetching data: ' + err.message);
         }
-        res.render('liabilitytypes', { liabilitytypes: results });
+        const displayuser = req.user.username;
+        res.render('liabilitytypes', { liabilitytypes: results, displayuser });
     });
 });
 
-app.get('/incomes', (req, res) => {
+app.get('/incomes', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
     connection.query(`
         SELECT i.IncomeID, i.Name, i.Description, it.IncomeTypeID, it.Name as IncomeTypeName, i.AssetID, a.Name as AssetName, 
                i.LiabilityID, l.Name as LiabilityName, i.Amount, DATE_FORMAT(i.StartDate, "%Y-%m-%d") as StartDate, 
@@ -292,32 +371,34 @@ app.get('/incomes', (req, res) => {
                     if (err) {
                         return res.send('Error fetching data: ' + err.message);
                     }
-                    
-                    res.render('incomes', { incomes: results, incomeTypes: results2, assets: results3, liabilities: results4, recurringPeriod: recurringPeriodList });
+                    const displayuser = req.user.username;
+                    res.render('incomes', { incomes: results, incomeTypes: results2, assets: results3, liabilities: results4, recurringPeriod: recurringPeriodList, displayuser });
                 });  
             });
         });
     });
 });
 
-app.get('/incometypes', (req, res) => {
+app.get('/incometypes', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
     connection.query('SELECT * FROM incometypes', (err, results) => {
         if (err) {
             return res.send('Error fetching data: ' + err.message);
         }
-        res.render('incometypes', { incometypes: results });
+        const displayuser = req.user.username;
+        res.render('incometypes', { incometypes: results, displayuser });
     });
 });
 
-app.get('/expensetypes', (req, res) => {
+app.get('/expensetypes', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
     connection.query('SELECT * FROM expensetypes', (err, results) => {
         if (err) {
             return res.send('Error fetching data: ' + err.message);
         }
-        res.render('expensetypes', { expensetypes: results });
+        const displayuser = req.user.username;
+        res.render('expensetypes', { expensetypes: results, displayuser });
     });
 });
-app.get('/expenses', (req, res) => {
+app.get('/expenses', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
     connection.query(`
         SELECT e.ExpenseID, e.Name, e.Description, et.ExpenseTypeID, et.Name as ExpenseTypeName, e.AssetID, a.Name as AssetName, 
         e.LiabilityID, l.Name as LiabilityName, e.Amount, DATE_FORMAT(e.StartDate, "%Y-%m-%d") as StartDate, 
@@ -344,15 +425,15 @@ app.get('/expenses', (req, res) => {
                     if (err) {
                         return res.send('Error fetching data: ' + err.message);
                     }
-                    
-                    res.render('expenses', { expenses: results, expenseTypes: results2, assets: results3, liabilities: results4, recurringPeriod: recurringPeriodList });
+                    const displayuser = req.user.username;
+                    res.render('expenses', { expenses: results, expenseTypes: results2, assets: results3, liabilities: results4, recurringPeriod: recurringPeriodList, displayuser });
                 });                    
             });
         });
     });
 });
 
-app.get('/finance', (req, res) => {
+app.get('/finance', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
     connection.query('SELECT SequenceID, Name, AssetID, LiabilityID FROM fincols ORDER By sequenceID', (err, finColsResults) => {
         if (err) {
             return res.send('Error fetching data: ' + err.message);
@@ -363,12 +444,13 @@ app.get('/finance', (req, res) => {
             WHERE if(isnull(fc.AssetID), fc.LiabilityID = fl.LiabilityID, fc.AssetID = fl.AssetID )
             ORDER BY fl.LineDate, fc.sequenceID
             `, (err, finLinesResults) => {
-            res.render('finance', { finCols: finColsResults, finLines: finLinesResults});
+                const displayuser = req.user.username;
+            res.render('finance', { finCols: finColsResults, finLines: finLinesResults, displayuser });
         });
     });    
 });
 
-app.get('/financecols', (req, res) => {
+app.get('/financecols', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
     connection.query(`
         SELECT fc.FinColID, fc.SequenceID, fc.AssetID, a.Name as AssetName, fc.LiabilityID, l.Name as LiabilityName, fc.Name 
         FROM fincols fc 
@@ -387,10 +469,44 @@ app.get('/financecols', (req, res) => {
                 if (err) {
                     return res.send('Error fetching data: ' + err.message);
                 }
-                
-                res.render('financecols', { financecols: results1, assets: results2, liabilities: results3});
+                const displayuser = req.user.username;
+                res.render('financecols', { financecols: results1, assets: results2, liabilities: results3, displayuser });
             });  
         });
+    });
+});
+
+//route for configuration page
+app.get('/configuration', ensureAuthenticated, checkAuthLevel(2), (req, res) => { 
+    const displayuser = req.user.username;
+    res.render('configuration', {displayuser});
+});
+
+//route for create new user page
+app.get('/configuration/createnewuser', ensureAuthenticated, checkAuthLevel(2), (req, res) => { 
+    const displayuser = req.user.username;
+    res.render('createnewuser', {displayuser});
+});
+
+//route for edit user details page
+app.get('/configuration/edituserdetails', ensureAuthenticated, checkAuthLevel(2), (req, res) => { 
+    connection.query('SELECT * FROM users', (err, results) => {
+        if (err) {
+            return res.send('Error fetching data: ' + err.message);
+        }
+        const displayuser = req.user.username;
+        res.render('edituserdetails', { edituserdetails: results, displayuser });
+    });
+});
+
+//route for modify screen permissions page page
+app.get('/configuration/modifyscreenpermissions', ensureAuthenticated, checkAuthLevel(3),(req, res) => { 
+    connection.query('SELECT * FROM users', (err, results) => {
+        if (err) {
+            return res.send('Error fetching data: ' + err.message);
+        }
+        const displayuser = req.user.username;
+        res.render('modifyscreenpermissions', { modifyscreenpermissions: results, displayuser });
     });
 });
 
@@ -462,6 +578,12 @@ const fincols_middle = express.urlencoded({
 })
 
 const finbreakdowns_middle = express.urlencoded({
+    extended:false,
+    limit: 10000,
+    //parameterLimit: 2,
+})
+
+const users_middle = express.urlencoded({ 
     extended:false,
     limit: 10000,
     //parameterLimit: 2,
@@ -1655,7 +1777,7 @@ app.post('/financecols/delete', fincols_middle, (req,res) => {
         }
 });
 
-app.get('/financebreakdowns', (req, res) => {
+app.get('/financebreakdowns', ensureAuthenticated, checkAuthLevel(2), (req, res) => {
 
     console.log(req.query.dateBreakdown);
 
@@ -1698,7 +1820,8 @@ app.get('/financebreakdowns', (req, res) => {
                         }
                         else {
                             let messages = null; // messaging is not implemented
-                            res.render('financebreakdowns', { messages: messages, financebreakdowns: results1, incomes: results2, expenses: results3});                            
+                            const displayuser = req.user.username;
+                            res.render('financebreakdowns', { messages: messages, financebreakdowns: results1, incomes: results2, expenses: results3, displayuser});                            
                         }
                     });  
                 });
@@ -2160,6 +2283,159 @@ app.post('/financebreakdowns/delete', finbreakdowns_middle, (req,res) => {
     processDelete();
 
 });
+
+app.post('/login', passport.authenticate('local', { 
+    successRedirect: '/', 
+    failureRedirect: '/login', 
+    failureFlash: true 
+  }));
+
+  app.post('/createNewUser/insert', users_middle, (req,res) => { 
+
+    console.log("Data Received");
+    console.log(req.body);
+
+    if(req.body.hiddenUserID == "")
+    {
+        const sql = "INSERT INTO users (Username,Password) VALUES ('" + 
+            req.body.username + "','" + 
+            req.body.password + "')";
+            
+            connection.query(sql, (err,result) => {
+                if(err) throw err;
+                console.log(sql); 
+                res.redirect(req.get('referer'));
+                console.log("Data Returned");
+            });
+    }
+    else if(parseInt(req.body.hiddenUserID) != "NaN")
+    {
+        const sql = "INSERT users SET Username = '" + req.body.username + 
+            "', Password = '" + req.body.password + 
+            "', FirstName = '" + req.body.firstName +
+            "', LastName = '" + req.body.lastName +
+            "', PhoneNumber = '" + req.body.phoneNumber +
+            "', EmailAddress = '"+ req.body.emailAddress + 
+            "', AuthLevel = 1";
+
+        connection.query(sql, (err,result) => {
+            if(err) throw err;
+            console.log(sql); 
+            res.redirect(req.get('referer'));
+            console.log("Data Returned");
+        });
+    }
+});
+
+app.post('/editUserDetails/update', users_middle, (req,res) => { 
+
+    console.log("Data Received");
+    console.log(req.body);
+
+    if(req.body.hiddenUserID == "")
+    {
+        const sql = "INSERT INTO users (Username,Password) VALUES ('" + 
+            req.body.username + "','" + 
+            req.body.password + "')";
+            
+            connection.query(sql, (err,result) => {
+                if(err) throw err;
+                console.log(sql); 
+                res.redirect(req.get('referer'));
+                console.log("Data Returned");
+            });
+    }
+    else if(parseInt(req.body.hiddenUserID) != "NaN")
+    {
+        const sql = "UPDATE users SET FirstName = '" + req.body.firstName +
+            "', LastName = '" + req.body.lastName +
+            "', PhoneNumber = '" + req.body.phoneNumber +
+            "', EmailAddress = '"+ req.body.emailAddress +
+            "', Username = '" + req.body.username +
+            "', Password = '" + req.body.password +
+            "' WHERE UserID = '" + req.body.userID + "'";
+
+        connection.query(sql, (err,result) => {
+            if(err) throw err;
+            console.log(sql); 
+            res.redirect(req.get('referer'));
+            console.log("Data Returned");
+        });
+    }
+});
+
+app.post('/editUserDetails/delete', users_middle, (req,res) => { 
+
+    console.log("Data Received");
+    console.log(req.body);
+    if(parseInt(req.body.userID) != "NaN")
+        {
+            const sql = "DELETE FROM users WHERE UserID = '" + req.body.userID + "'";
+
+            connection.query(sql, (err,result) => {
+                if(err) throw err;
+                console.log(sql); 
+                res.redirect(req.get('referer'));
+                console.log("Data Returned");
+            });
+        }
+});
+
+app.post('/modifyscreenpermissions/update', users_middle, (req,res) => { 
+
+    console.log("Data Received");
+    console.log(req.body);
+
+    if(req.body.hiddenUserID == "")
+    {
+        const sql = "INSERT INTO users (Username,Password) VALUES ('" + 
+            req.body.username + "','" + 
+            req.body.password + "')";
+            
+            connection.query(sql, (err,result) => {
+                if(err) throw err;
+                console.log(sql); 
+                res.redirect(req.get('referer'));
+                console.log("Data Returned");
+            });
+    }
+    else if(parseInt(req.body.hiddenUserID) != "NaN")
+    {
+        const sql = "UPDATE users SET AuthLevel = '" + req.body.authlevel +
+            "' WHERE UserID = '" + req.body.userID + "'";
+
+        connection.query(sql, (err,result) => {
+            if(err) throw err;
+            console.log(sql); 
+            res.redirect(req.get('referer'));
+            console.log("Data Returned");
+        });
+    }
+});
+
+function ensureAuthenticated(req, res, next) { // requires login to access page 
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect('/login');
+}
+
+function checkAuthLevel(minLevel) { 
+    return (req, res, next) => {
+      if (req.isAuthenticated() && req.user.authlevel >= minLevel) {
+        return next();
+      }
+      res.status(403).send('Forbidden');
+    };
+}
+
+// Logout route
+app.get('/logout', (req, res) => { 
+    req.logout(req.user, err => {
+        if(err) return next(err);
+        res.redirect("/login");
+      });
+  });
 
 // Start the server
 const PORT = process.env.PORT || 3000;
